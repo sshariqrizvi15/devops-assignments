@@ -1,0 +1,121 @@
+Resources:  
+  InternalELBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http to client host
+      VpcId:
+        Fn::ImportValue: shariqstack-VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 5000
+          ToPort: 5000
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: shariqInternalELBStack
+ 
+  
+  PublicSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow http to client host
+      VpcId:
+        Fn::ImportValue: shariqstack-VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: shariqPublicStack
+
+  PrivateSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow ssh to client host
+      VpcId:
+        Fn::ImportValue: shariqstack-VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 10.0.1.0/24       
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 10.0.1.0/24
+        - IpProtocol: tcp
+          FromPort: 5000
+          ToPort: 5000
+          CidrIp: 10.0.1.0/24
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 10.0.1.0/24
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref InternalELBSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 5000
+          ToPort: 5000
+          SourceSecurityGroupId: !Ref InternalELBSecurityGroup
+      Tags:
+        - Key: Name
+          Value: shariqprivatestack
+
+   # Create DB Security Group
+  DbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: For RDS Instance
+      VpcId:
+        Fn::ImportValue: shariqstack-VPC
+      Tags:
+      - Key: Name
+        Value: RDS-SecurityGroup
+
+  # Attach Secuirty Group Rule
+  DbIngress1:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref DbSecurityGroup
+      IpProtocol: tcp
+      FromPort: '3306'
+      ToPort: '3306'
+      CidrIp: 10.0.2.0/24
+
+
+Outputs:
+  InternalSecurityGroupELB:
+    Description: A reference to the created ELB Security Group
+    Value: !Ref InternalELBSecurityGroup
+    Export:
+      Name: !Sub "shariqstack-ELBSecurityGroup"
+
+  SecurityGroupPublic:
+    Description: A reference to the created Public Security Group
+    Value: !Ref PublicSecurityGroup
+    Export:
+      Name: !Sub "shariqstack-PublicSecurityGroup"
+
+  SecurityGroupPrivate:
+    Description: A reference to the created Private Security Group
+    Value: !Ref PrivateSecurityGroup
+    Export:
+      Name: !Sub "shariqstack-PrivateSecurityGroup"
+
+  SecurityGroupDb:
+    Description: A reference to the created DB Security Group
+    Value: !Ref DbSecurityGroup
+    Export:
+      Name: !Sub "shariqstack-DbSecurityGroup"

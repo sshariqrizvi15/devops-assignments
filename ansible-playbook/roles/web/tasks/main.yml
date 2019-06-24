@@ -1,0 +1,46 @@
+---
+# tasks file for web
+- name: Install Packages
+  yum:
+    name: ['epel-release', 'git', 'openssl', 'openssl-devel']
+    state: present
+
+- name: Install Node Package
+  yum:
+    name: 'nodejs'
+    state: present
+
+- name: Create APP Directory
+  file: path={homeDir} state=directory
+
+- name: Git Clone Repo
+  git:
+    repo: 'https://github.com/sshariqrizvi15/rest-crud.git'
+    dest: /home/vagrant/app
+  register: git_finished
+
+- name: Running NPM install
+  npm: 
+    path: {homeDir}
+    state: present
+
+
+- name: Install pm2
+  npm:
+    name: pm2
+    global: yes  
+
+- name: Stop APP
+  command: pm2 stop {{homeDir}}/server.js
+  become: yes
+  become_user: vagrant
+  ignore_errors: yes
+ 
+- name: Start pm2
+  command: pm2 start {{homeDir}}/server.js
+  become: yes
+  become_user: vagrant
+
+
+- name: PM2 StartUp
+  command: env PATH=$PATH:/usr/bin pm2 startup systemd -u vagrant --hp /home/vagrant

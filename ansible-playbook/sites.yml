@@ -1,0 +1,17 @@
+# site.yml
+---
+- name: install mysql
+  hosts: dbservers
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  roles:
+    - db
+
+- name: install nodejs
+  hosts: webservers
+  become: yes
+  become_method: sudo
+  gather_facts: no
+  roles:
+    - web

@@ -1,0 +1,114 @@
+Resources:
+  PublicLoadBalancer:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties: 
+      Subnets:
+        - Fn::ImportValue: shariqstack-Public-Subnet
+      Scheme: internet-facing  
+      SecurityGroups: 
+        - Fn::ImportValue: shariqstack-PublicSecurityGroup
+      Listeners:
+        - LoadBalancerPort: 80
+          InstancePort: 80
+          Protocol: TCP
+      HealthCheck:  
+        Target: HTTP:80/
+        HealthyThreshold: '3'
+        UnhealthyThreshold: '5'
+        Interval: '6'
+        Timeout: '5'
+      Tags:
+        - Key: Name
+          Value: ShariqPublicELBStack
+
+  PrivateLoadBalancer:
+    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Properties:
+      Subnets:
+        - Fn::ImportValue: shariqstack-Private-Subnet
+      Scheme: internal  
+      SecurityGroups: 
+        - Fn::ImportValue: shariqstack-PrivateSecurityGroup
+      Listeners:
+        - LoadBalancerPort: 80
+          InstancePort: 80
+          Protocol: TCP
+        - LoadBalancerPort: 5000
+          InstancePort: 5000
+          Protocol: TCP 
+      HealthCheck:
+        Target: HTTP:80/
+        HealthyThreshold: '3'
+        UnhealthyThreshold: '5'
+        Interval: '6'
+        Timeout: '5'
+      Tags:
+        - Key: Name
+          Value: ShariqPrivateELBStack
+
+  LaunchConfigurationPublic: 
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties: 
+      ImageId: ami-0ebbf2179e615c338
+      InstanceType: t2.micro
+      KeyName: ShariqKeyPair
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          sudo yum -y install httpd
+          cd /var/www/html
+          echo "healthy" | sudo tee /var/www/html/healthy.html
+          sudo yum -y install git
+          cd /home/ec2-user
+          git clone https://github.com/sshariqrizvi15/front-end.git
+          sudo cp /home/ec2-user/front-end/vww/index.html /var/www/html/index.html
+          echo 'ProxyPreserveHost On' | sudo tee -a /etc/httpd/conf/httpd.conf
+          echo 'ProxyPass /app/checkRequest http://10.0.2.246:5000/app/checkRequest' | sudo tee -a /etc/httpd/conf/httpd.conf
+          echo 'ProxyPassReverse /app/checkRequest http://10.0.2.246:5000/app/checkRequest' | sudo tee -a /etc/httpd/conf/httpd.conf
+          sudo service httpd start
+      SecurityGroups: 
+        - Fn::ImportValue: shariqstack-PublicSecurityGroup
+
+  MyPublicServerAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      LaunchConfigurationName: !Ref LaunchConfigurationPublic
+      VPCZoneIdentifier: [ { "Fn::ImportValue": "shariqstack-Public-Subnet" } ]
+      MinSize: '2'
+      MaxSize: '2'
+      LoadBalancerNames: [ { "Ref" : "PublicLoadBalancer" } ]
+
+  LaunchConfigurationPrivate: 
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties: 
+      ImageId: ami-0ebbf2179e615c338
+      InstanceType: t2.micro
+      KeyName: ShariqKeyPair
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          sudo yum -y install httpd
+          cd /var/www/html
+          echo "healthy" | sudo tee /var/www/html/index.html
+          cd /home/ec2-user
+          sudo wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+          sudo yum -y localinstall mysql57-community-release-el7-11.noarch.rpm
+          sudo yum -y install mysql
+          sudo yum -y install python3
+          sudo yum -y install git
+          sudo yum install python3-pip
+          git clone https://github.com/sshariqrizvi15/python-app-server.git
+          sudo pip3 install -r python-app-server/requirements.txt
+          nohup python3 /home/ec2-user/python-app-server/app/app.py > output.txt 2>&1  </dev/null &
+          sudo service httpd start
+      SecurityGroups: 
+        - Fn::ImportValue: shariqstack-PublicSecurityGroup
+
+  MyPrivateServerAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      LaunchConfigurationName: !Ref LaunchConfigurationPrivate
+      VPCZoneIdentifier: [ { "Fn::ImportValue": "shariqstack-Private-Subnet" } ]
+      MinSize: '2'
+      MaxSize: '2'
+      LoadBalancerNames: [ { "Ref" : "PrivateLoadBalancer" } ]

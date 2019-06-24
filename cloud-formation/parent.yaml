@@ -1,0 +1,23 @@
+Resources:
+  VPC:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "https://s3.us-east-2.amazonaws.com/shariq-stack-bucket/vpc.yaml"
+
+  SecurityGroups:
+    Type: AWS::CloudFormation::Stack
+    DependsOn : VPC
+    Properties:
+      TemplateURL: !Sub "https://s3.us-east-2.amazonaws.com/shariq-stack-bucket/security-groups.yaml"
+
+  RDS:
+    Type: AWS::CloudFormation::Stack
+    DependsOn : SecurityGroups
+    Properties:
+      TemplateURL: !Sub "https://s3.us-east-2.amazonaws.com/shariq-stack-bucket/rds.yaml"
+  
+  LoadBalancer:
+    Type: AWS::CloudFormation::Stack
+    DependsOn : RDS
+    Properties:
+      TemplateURL: !Sub "https://s3.us-east-2.amazonaws.com/shariq-stack-bucket/loadbalancers.yaml"
