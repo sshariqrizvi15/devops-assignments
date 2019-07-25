@@ -1,0 +1,15 @@
+[
+    {
+      "name": "shariq-flask",
+      "image": "853219876644.dkr.ecr.us-east-2.amazonaws.com/shariqflaskapp",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 5000,
+          "hostPort": 0
+        }
+      ],
+      "memory": 128,
+      "cpu": 10
+    }
+]
