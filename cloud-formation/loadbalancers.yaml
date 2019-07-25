@@ -28,7 +28,7 @@ Resources:
         - Fn::ImportValue: shariqstack-Private-Subnet
       Scheme: internal  
       SecurityGroups: 
-        - Fn::ImportValue: shariqstack-PrivateSecurityGroup
+        - Fn::ImportValue: shariqstack-ELBSecurityGroup
       Listeners:
         - LoadBalancerPort: 80
           InstancePort: 80
@@ -76,6 +76,10 @@ Resources:
       VPCZoneIdentifier: [ { "Fn::ImportValue": "shariqstack-Public-Subnet" } ]
       MinSize: '2'
       MaxSize: '2'
+      Tags: 
+        - Key: Name
+          PropagateAtLaunch: true
+          Value: ShariqPublicInstance
       LoadBalancerNames: [ { "Ref" : "PublicLoadBalancer" } ]
 
   LaunchConfigurationPrivate: 
@@ -94,6 +98,9 @@ Resources:
           sudo wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
           sudo yum -y localinstall mysql57-community-release-el7-11.noarch.rpm
           sudo yum -y install mysql
+          sudo yum install docker -y
+          sudo service docker start
+          sudo usermod -a -G docker ec2-user
           sudo yum -y install python3
           sudo yum -y install git
           sudo yum install python3-pip
@@ -102,7 +109,7 @@ Resources:
           nohup python3 /home/ec2-user/python-app-server/app/app.py > output.txt 2>&1  </dev/null &
           sudo service httpd start
       SecurityGroups: 
-        - Fn::ImportValue: shariqstack-PublicSecurityGroup
+        - Fn::ImportValue: shariqstack-PrivateSecurityGroup
 
   MyPrivateServerAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -111,4 +118,8 @@ Resources:
       VPCZoneIdentifier: [ { "Fn::ImportValue": "shariqstack-Private-Subnet" } ]
       MinSize: '2'
       MaxSize: '2'
+      Tags: 
+        - Key: Name
+          PropagateAtLaunch: true
+          Value: ShariqPrivateInstance
       LoadBalancerNames: [ { "Ref" : "PrivateLoadBalancer" } ]
