@@ -15,4 +15,12 @@ Docker compose is used to create docker containers. This assignment will deploy 
 
 ### [kubernetes]
 ---
-This assignment deploys sample application in AWS environment using kubernetes. One Master and two Worker nodes were created in a cluster. Then Service was exposed for a deployment
+This assignment deploys sample application in AWS environment using kubernetes. One Master and two Worker nodes were created in a cluster. Then Service was exposed for a deployment.
+
+### [jenkins]
+---
+This assignment deploys sample application in all private instances using declarative pipeline. Same task was also performed using shared pipeline.
+
+### [terraform]
+---
+This assignment deploys python application in ECS (without fargate).  In this assignment, terraform script setup vpc, iam roles, Loadbalancers, target groups, task definitions and services.
