@@ -17,7 +17,7 @@ node {
             skipDecorate()
         }
    }
-   stage('Results') {
+   stage('Deploy') {
         sh label: '', script: '''#!/bin/sh
         # This is a comment!
         aws_instances=`aws ec2 describe-instances --filters Name=tag:Name,Values=ShariqPrivateInstance --query \'Reservations[].Instances[].[PrivateIpAddress]\' --output text`
