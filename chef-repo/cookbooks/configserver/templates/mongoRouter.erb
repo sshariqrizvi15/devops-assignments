@@ -1,0 +1,11 @@
+systemLog:
+  destination: file
+  logAppend: true
+  path: /var/log/mongodb/mongoRouter.log
+
+net:
+  port: 27017
+  bindIp: <%= node['ipaddress'] %>
+
+sharding:
+  configDB: ConfigReplSet/<%= node['ipaddress'] %>:27019

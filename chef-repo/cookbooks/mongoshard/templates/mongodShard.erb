@@ -1,0 +1,19 @@
+storage:
+  dbPath: /var/lib/mongodb
+  journal:
+    enabled: true
+
+systemLog:
+  destination: file
+  logAppend: true
+  path: /var/log/mongodb/mongodShard.log
+
+net:
+  port: 27018 
+  bindIp: <%= node['ipaddress'] %>
+
+sharding:
+  clusterRole: shardsvr
+
+replication:
+  replSetName: ShardReplSet
