@@ -1,0 +1,7 @@
+{  
+  "id": "users",
+  "ubuntu@ip-172-31-39-33": {
+    "key": "AAAAB3NzaC1yc2EAAAADAQABAAABAQDAXwYy0kAaRA4pVfKUFQZ/gzl6axvprDzRGFEnmhAv83fcNCG1yaSACvA0uDsTMY9zXcH0a3kT94yO43Bci7vrFh1TmswHZUFfSw0z+Vc3GHE0qXCQz3ea7MrnDc9zplUPxIH8V6WpVpmTMFXU+4tvw33LpcdbWyQe6xuriRC60rrWAs4iSpSZ2b7VSp1CMzMAEo230rJpSq6C7Tv3oKaaBxPak9LPHK0HZn8VVKNAUThHxuMiPMKbYDrKuNc9vYrU+l/+C2vSnq4uqKsOySbvf9qdaUgKW5PHlnV8nVKkKpz+9VqxR8B3uXtQ5MGAbYGUT9wnIyT3oyioyJTVxsHR",
+    "user": "ubuntu"
+  }
+}
