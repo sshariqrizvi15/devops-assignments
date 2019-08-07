@@ -12,4 +12,4 @@
 
 ## Disclaimer
 
-I am working on this assignment, so its currenlty uncomplete.
+I am working on this assignment, so its currently incomplete.
