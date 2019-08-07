@@ -24,3 +24,7 @@ This assignment deploys sample application in all private instances using declar
 ### [terraform]
 ---
 This assignment deploys python application in ECS (without fargate).  In this assignment, terraform script setup vpc, iam roles, Loadbalancers, target groups, task definitions and services.
+
+### [chef-repo]
+---
+This assignment deploys MongoDB cluster along Datadog agent and SSH key injection. (Currently under progress)
